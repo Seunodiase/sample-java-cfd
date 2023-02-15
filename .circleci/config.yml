@@ -6,6 +6,7 @@ orbs:
   # so you dont have to copy and paste it everywhere.
   # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/maven
   maven: circleci/maven@1.3
+  sonarcloud: sonarsource/sonarcloud@1.1.1
 
 executors:
   openjdk11:
@@ -15,8 +16,8 @@ executors:
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: cfd
-
+          POSTGRES_DB: cfd    
+      - sonarcloud/scan
 workflows:
   verify: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
@@ -29,8 +30,9 @@ workflows:
                 name: Install dockerize
                 command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
                 environment:
-                  DOCKERIZE_VERSION: v0.6.1
+                  DOCKERIZE_VERSION: v0.6.1      
             - run:
                 name: Wait for db
                 command: dockerize -wait tcp://localhost:5432 -timeout 1m
+                context: SonarCloud
 
